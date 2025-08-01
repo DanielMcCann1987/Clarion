@@ -6,14 +6,29 @@ import HistoryScreen from '../screens/HistoryScreen';
 import InsightsScreen from '../screens/InsightsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useTheme } from '../design/ThemeProvider';
-import { Text } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
+const ICON_SIZE = 20; // smaller size
 
 export default function BottomTabs() {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
+
+  const tabBarIcon = (name) => ({ color, focused }) => (
+    <TextAccessibilityWrapper>
+      <Text style={{}}>
+        <MaterialCommunityIcons
+          name={name}
+          size={ICON_SIZE}
+          color={focused ? theme.colors.card : color}
+          style={focused ? styles.activeIcon : null}
+        />
+      </Text>
+    </TextAccessibilityWrapper>
+  );
 
   return (
     <Tab.Navigator
@@ -23,21 +38,18 @@ export default function BottomTabs() {
           backgroundColor: theme.colors.card,
           borderTopColor: theme.colors.border,
           flexDirection: 'row',
-          height: 56 + (insets.bottom ? insets.bottom : 0), // controlled height
           paddingTop: 4,
-          paddingBottom: insets.bottom ? insets.bottom : 6,
-          paddingHorizontal: 8,
-          elevation: 4,
+          paddingBottom: Math.max(insets.bottom, 6),
+          paddingHorizontal: 12,
+          height: 52 + (insets.bottom > 0 ? insets.bottom : 0),
+          elevation: 3,
         },
-        tabBarActiveTintColor: theme.colors.accent,
+        tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.muted,
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
           marginTop: 2,
-        },
-        tabBarIconStyle: {
-          marginBottom: 0,
         },
         tabBarHideOnKeyboard: true,
       }}
@@ -47,7 +59,15 @@ export default function BottomTabs() {
         component={JournalStack}
         options={{
           tabBarLabel: 'Journal',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>📝</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <ViewWrapper focused={focused} theme={theme}>
+              <MaterialCommunityIcons
+                name="message-text-outline"
+                size={ICON_SIZE}
+                color={focused ? theme.colors.card : color}
+              />
+            </ViewWrapper>
+          ),
         }}
       />
       <Tab.Screen
@@ -55,7 +75,11 @@ export default function BottomTabs() {
         component={HistoryScreen}
         options={{
           tabBarLabel: 'History',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>📚</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <ViewWrapper focused={focused} theme={theme}>
+              <MaterialCommunityIcons name="history" size={ICON_SIZE} color={focused ? theme.colors.card : color} />
+            </ViewWrapper>
+          ),
         }}
       />
       <Tab.Screen
@@ -63,7 +87,11 @@ export default function BottomTabs() {
         component={InsightsScreen}
         options={{
           tabBarLabel: 'Insights',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>📈</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <ViewWrapper focused={focused} theme={theme}>
+              <MaterialCommunityIcons name="chart-line" size={ICON_SIZE} color={focused ? theme.colors.card : color} />
+            </ViewWrapper>
+          ),
         }}
       />
       <Tab.Screen
@@ -71,9 +99,38 @@ export default function BottomTabs() {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 18 }}>👤</Text>,
+          tabBarIcon: ({ color, focused }) => (
+            <ViewWrapper focused={focused} theme={theme}>
+              <MaterialCommunityIcons name="account-circle" size={ICON_SIZE} color={focused ? theme.colors.card : color} />
+            </ViewWrapper>
+          ),
         }}
       />
     </Tab.Navigator>
   );
 }
+
+// helper wrapper to get circular background when focused
+function ViewWrapper({ children, focused, theme }) {
+  return (
+    <Text style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+      {children}
+    </Text>
+  );
+}
+
+const styles = StyleSheet.create({
+  activeWrapper: (theme) => ({
+    backgroundColor: theme.colors.primary,
+    padding: 4, // reduced padding
+    borderRadius: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }),
+  inactiveWrapper: () => ({
+    padding: 2,
+    borderRadius: 999,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }),
+});
