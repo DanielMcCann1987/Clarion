@@ -3,23 +3,14 @@ import React from 'react';
 import { Text, TouchableOpacity, View, Switch } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
+import Header from '../components/Header';
 
 export default function ProfileScreen() {
   const { theme, mode, toggle } = useTheme();
 
   return (
     <ScreenContainer>
-      <Text
-        style={{
-          color: theme.colors.text,
-          fontSize: theme.typography.heading.fontSize,
-          fontWeight: theme.typography.heading.fontWeight,
-          marginBottom: theme.spacing.md,
-        }}
-      >
-        Profile & Settings
-      </Text>
-
+      <Header title="Profile & Settings" />
       <View style={{ marginBottom: theme.spacing.md }}>
         <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Account</Text>
         <Text style={{ color: theme.colors.muted, marginTop: 4 }}>daniel@example.com</Text>
