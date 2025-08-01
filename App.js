@@ -1,21 +1,13 @@
 // App.js
+import 'react-native-gesture-handler';
 import React from 'react';
-import { SafeAreaView, StyleSheet, Platform } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native';
 import JournalScreen from './src/JournalScreen';
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0f111a' }}>
       <JournalScreen />
-      <StatusBar style="auto" />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: Platform.OS === 'android' ? 25 : 0,
-  },
-});
