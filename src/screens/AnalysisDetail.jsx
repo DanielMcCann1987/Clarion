@@ -3,24 +3,15 @@ import React from 'react';
 import { Text, TouchableOpacity, ScrollView, StyleSheet, View } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
+import Header from '../components/Header';
 
-export default function AnalysisDetail() {
+export default function AnalysisDetail({ navigation }) {
   const { theme } = useTheme();
 
   return (
     <ScreenContainer>
+      <Header title="Analysis" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.lg }}>
-        <Text
-          style={{
-            color: theme.colors.text,
-            fontSize: theme.typography.heading.fontSize,
-            fontWeight: theme.typography.heading.fontWeight,
-            marginBottom: theme.spacing.md,
-          }}
-        >
-          Analysis Detail
-        </Text>
-
         {/* Surface Structure */}
         <View style={[styles.section, { borderColor: theme.colors.border }]}>
           <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>1. Surface Structure</Text>
@@ -46,7 +37,6 @@ export default function AnalysisDetail() {
               “All cravings mean weakness” – sweeping rule applied.
             </Text>
           </View>
-          {/* Add more patternRow items as needed */}
         </View>
 
         {/* Deep Structure */}
@@ -101,7 +91,7 @@ export default function AnalysisDetail() {
           </Text>
         </View>
 
-        {/* Optional Extensions */}
+        {/* Extensions */}
         <View style={[styles.section, { borderColor: theme.colors.border }]}>
           <Text style={[styles.sectionTitle, { color: theme.colors.primary }]}>7. Extensions</Text>
           <TouchableOpacity

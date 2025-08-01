@@ -3,24 +3,15 @@ import React from 'react';
 import { Text, View, ScrollView } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
+import Header from '../components/Header';
 
 export default function InsightsScreen() {
   const { theme } = useTheme();
 
   return (
     <ScreenContainer>
+      <Header title="Insights" />
       <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.lg }}>
-        <Text
-          style={{
-            color: theme.colors.text,
-            fontSize: theme.typography.heading.fontSize,
-            fontWeight: theme.typography.heading.fontWeight,
-            marginBottom: theme.spacing.md,
-          }}
-        >
-          Insights
-        </Text>
-
         <View
           style={{
             backgroundColor: theme.colors.card,
@@ -73,22 +64,8 @@ export default function InsightsScreen() {
             Belief Trends
           </Text>
           <Text style={{ color: theme.colors.text }}>
-            Top implied beliefs: Awareness over Addiction, Clarity over avoidance.
+            Top implied beliefs: Awareness &gt; Addiction, Clarity over avoidance.
           </Text>
-        </View>
-
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            padding: theme.spacing.md,
-            borderRadius: 10,
-            marginBottom: theme.spacing.md,
-          }}
-        >
-          <Text style={{ color: theme.colors.secondary, fontWeight: '600', marginBottom: 6 }}>
-            Reframe Library
-          </Text>
-          <Text style={{ color: theme.colors.text }}>“I choose clarity.” “Discomfort is information.”</Text>
         </View>
 
         <View

@@ -1,10 +1,20 @@
 // src/screens/JournalEntryScreen.jsx
 import React, { useState } from 'react';
-import { TextInput, Text, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet, Alert } from 'react-native';
+import {
+  TextInput,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  View,
+} from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import ThemedButton from '../components/ThemedButton';
 import AnalysisCard from '../components/AnalysisCard';
 import { useTheme } from '../design/ThemeProvider';
+import Header from '../components/Header';
 
 const TAG_OPTIONS = ['anxiety', 'smoking', 'clarity', 'stress', 'gratitude'];
 
@@ -28,7 +38,6 @@ export default function JournalEntryScreen({ navigation }) {
     }
     setLoading(true);
     setAnalysisResult(null);
-    // simulate analysis
     setTimeout(() => {
       setLoading(false);
       setAnalysisResult({
@@ -42,21 +51,19 @@ export default function JournalEntryScreen({ navigation }) {
 
   return (
     <ScreenContainer>
+      <Header title="New Entry" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.lg }}>
         <Text
           style={{
             color: theme.colors.text,
-            fontSize: theme.typography.heading.fontSize,
-            fontWeight: theme.typography.heading.fontWeight,
+            fontSize: theme.typography.subheading.fontSize,
+            fontWeight: theme.typography.subheading.fontWeight,
             marginBottom: theme.spacing.sm,
           }}
         >
-          New Journal Entry
-        </Text>
-
-        <Text style={{ color: theme.colors.text, marginBottom: 6, fontWeight: '600' }}>
           What’s going on inside?
         </Text>
+
         <TextInput
           multiline
           placeholder="Describe what you're feeling, thinking, reacting to…"
@@ -73,7 +80,14 @@ export default function JournalEntryScreen({ navigation }) {
           ]}
         />
 
-        <Text style={{ color: theme.colors.text, marginTop: theme.spacing.md, marginBottom: 6, fontWeight: '600' }}>
+        <Text
+          style={{
+            color: theme.colors.text,
+            marginTop: theme.spacing.md,
+            marginBottom: 6,
+            fontWeight: '600',
+          }}
+        >
           Tags
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
@@ -104,16 +118,10 @@ export default function JournalEntryScreen({ navigation }) {
         <ThemedButton title="Analyze with Milton Model" onPress={submit} disabled={!entry.trim() || loading} />
 
         {loading && (
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: theme.spacing.sm,
-            }}
-          >
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: theme.spacing.sm }}>
             <ActivityIndicator color={theme.colors.accent} />
             <Text style={{ color: theme.colors.text, marginLeft: 8 }}>Analyzing...</Text>
-          </TouchableOpacity>
+          </View>
         )}
 
         {analysisResult && (
