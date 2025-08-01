@@ -1,16 +1,15 @@
 // src/screens/HistoryScreen.jsx
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
+import ScreenContainer from '../components/ScreenContainer';
 
 export default function HistoryScreen() {
   return (
-    <View style={{ flex: 1, backgroundColor: '#0f111a', padding: 16 }}>
-      <Text style={{ color: '#f5f5fa', fontSize: 20, fontWeight: '600' }}>
-        History Screen
+    <ScreenContainer>
+      <Text style={{ color: '#fff', fontSize: 20, fontWeight: '600', marginBottom: 8 }}>
+        History
       </Text>
-      <Text style={{ color: '#a0a8c0', marginTop: 8 }}>
-        Placeholder for list of past entries.
-      </Text>
-    </View>
+      <Text style={{ color: '#aaa' }}>List of past entries will go here.</Text>
+    </ScreenContainer>
   );
 }
