@@ -6,29 +6,16 @@ import HistoryScreen from '../screens/HistoryScreen';
 import InsightsScreen from '../screens/InsightsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useTheme } from '../design/ThemeProvider';
-import { Text, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
-const ICON_SIZE = 20; // smaller size
+const ICON_SIZE = 20;
 
 export default function BottomTabs() {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-
-  const tabBarIcon = (name) => ({ color, focused }) => (
-    <TextAccessibilityWrapper>
-      <Text style={{}}>
-        <MaterialCommunityIcons
-          name={name}
-          size={ICON_SIZE}
-          color={focused ? theme.colors.card : color}
-          style={focused ? styles.activeIcon : null}
-        />
-      </Text>
-    </TextAccessibilityWrapper>
-  );
 
   return (
     <Tab.Navigator
@@ -60,13 +47,13 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'Journal',
           tabBarIcon: ({ color, focused }) => (
-            <ViewWrapper focused={focused} theme={theme}>
+            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
               <MaterialCommunityIcons
                 name="message-text-outline"
                 size={ICON_SIZE}
                 color={focused ? theme.colors.card : color}
               />
-            </ViewWrapper>
+            </View>
           ),
         }}
       />
@@ -76,9 +63,13 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'History',
           tabBarIcon: ({ color, focused }) => (
-            <ViewWrapper focused={focused} theme={theme}>
-              <MaterialCommunityIcons name="history" size={ICON_SIZE} color={focused ? theme.colors.card : color} />
-            </ViewWrapper>
+            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+              <MaterialCommunityIcons
+                name="history"
+                size={ICON_SIZE}
+                color={focused ? theme.colors.card : color}
+              />
+            </View>
           ),
         }}
       />
@@ -88,9 +79,13 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'Insights',
           tabBarIcon: ({ color, focused }) => (
-            <ViewWrapper focused={focused} theme={theme}>
-              <MaterialCommunityIcons name="chart-line" size={ICON_SIZE} color={focused ? theme.colors.card : color} />
-            </ViewWrapper>
+            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+              <MaterialCommunityIcons
+                name="chart-line"
+                size={ICON_SIZE}
+                color={focused ? theme.colors.card : color}
+              />
+            </View>
           ),
         }}
       />
@@ -100,9 +95,13 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <ViewWrapper focused={focused} theme={theme}>
-              <MaterialCommunityIcons name="account-circle" size={ICON_SIZE} color={focused ? theme.colors.card : color} />
-            </ViewWrapper>
+            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+              <MaterialCommunityIcons
+                name="account-circle"
+                size={ICON_SIZE}
+                color={focused ? theme.colors.card : color}
+              />
+            </View>
           ),
         }}
       />
@@ -110,19 +109,10 @@ export default function BottomTabs() {
   );
 }
 
-// helper wrapper to get circular background when focused
-function ViewWrapper({ children, focused, theme }) {
-  return (
-    <Text style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
-      {children}
-    </Text>
-  );
-}
-
 const styles = StyleSheet.create({
   activeWrapper: (theme) => ({
     backgroundColor: theme.colors.primary,
-    padding: 4, // reduced padding
+    padding: 4,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',

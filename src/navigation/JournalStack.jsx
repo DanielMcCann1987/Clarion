@@ -12,7 +12,7 @@ export default function JournalStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Dashboard" component={JournalDashboard} />
       <Stack.Screen name="Entry" component={JournalEntryScreen} />
-      <Stack.Screen name="AnalysisDetail" component={AnalysisDetail} />
+      <Stack.Screen name="Analysis" component={AnalysisDetail} />
     </Stack.Navigator>
   );
 }
