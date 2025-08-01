@@ -1,7 +1,7 @@
 // src/navigation/BottomTabs.jsx
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import JournalDashboard from '../screens/JournalDashboard';
+import JournalStack from './JournalStack';
 import HistoryScreen from '../screens/HistoryScreen';
 import InsightsScreen from '../screens/InsightsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -18,7 +18,7 @@ export default function BottomTabs() {
         tabBarInactiveTintColor: '#888',
       }}
     >
-      <Tab.Screen name="Journal" component={JournalDashboard} />
+      <Tab.Screen name="Journal" component={JournalStack} />
       <Tab.Screen name="History" component={HistoryScreen} />
       <Tab.Screen name="Insights" component={InsightsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
