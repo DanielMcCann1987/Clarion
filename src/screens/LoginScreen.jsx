@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../components/ScreenContainer';
@@ -18,23 +19,43 @@ export default function LoginScreen() {
   const navigation = useNavigation();
   const { theme } = useTheme();
   const { login } = useAuth();
+  const { width: windowWidth } = useWindowDimensions();
   const styles = getStyles(theme);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // responsive logo size
+  const logoSize = Math.min(320, windowWidth * 0.8);
+
   const handleLogin = () => {
-    // mock login
-    login();
+    login(); // mock/login
   };
 
   return (
     <ScreenContainer>
-      <View style={styles.logoContainer}>
-        <Image source={logo} style={styles.logo} resizeMode="contain" />
-        <Text style={styles.title}>Context is Everything</Text>
+      {/* Top block: logo above title */}
+      <View style={styles.topSection}>
+        {/* DEBUG: uncomment border to see container bounds */}
+        {/* <View style={{ borderWidth: 1, borderColor: 'red' }}> */}
+          <Image
+            source={logo}
+            style={{
+              width: logoSize,
+              height: logoSize,
+              tintColor: theme.colors.primary,
+              marginBottom: 2, // minimal explicit gap
+              alignSelf: 'center',
+            }}
+            resizeMode="contain"
+          />
+          <Text style={styles.title} includeFontPadding={false}>
+            Context is Everything
+          </Text>
+        {/* </View> */}
       </View>
 
+      {/* Form */}
       <View style={styles.form}>
         <TextInput
           style={styles.input}
@@ -71,20 +92,19 @@ export default function LoginScreen() {
 
 const getStyles = (theme) =>
   StyleSheet.create({
-    logoContainer: {
-      justifyContent: 'center',
+    topSection: {
       alignItems: 'center',
-      paddingVertical: theme.spacing.lg,
-    },
-    logo: {
-      width: 160,
-      height: 160,
-      marginBottom: theme.spacing.md,
+      marginTop: 32,
+      marginBottom: 4,
+      paddingHorizontal: 16,
+      // ensure nothing is stretching it
     },
     title: {
-      fontSize: 24,
-      fontWeight: '700',
+      fontSize: 20,
+      fontWeight: '600',
       color: theme.colors.text,
+      lineHeight: 20, // tight to remove extra internal space
+      marginTop: 0,
     },
     form: {
       paddingHorizontal: theme.spacing.lg,
