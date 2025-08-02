@@ -1,5 +1,5 @@
 // src/JournalDashboard.jsx
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Modal,
   TextInput,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import ThemedButton from '../components/ThemedButton';
@@ -23,6 +25,66 @@ function formatYMD(date) {
 }
 function formatDisplay(date) {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// MarqueeText: continuous right-to-left scroll; falls back to static if content fits
+function MarqueeText({ text, speed = 50, textStyle, style }) {
+  const animated = useRef(new Animated.Value(0)).current;
+  const [contentWidth, setContentWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    if (!contentWidth || !containerWidth) return;
+
+    if (contentWidth <= containerWidth) {
+      animated.setValue(0);
+      return;
+    }
+
+    const duration = (contentWidth / speed) * 1000;
+
+    animated.setValue(0);
+    const animation = Animated.loop(
+      Animated.timing(animated, {
+        toValue: -contentWidth,
+        duration,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    );
+    animation.start();
+
+    return () => animation.stop();
+  }, [contentWidth, containerWidth, speed, animated]);
+
+  return (
+    <View
+      style={[{ overflow: 'hidden', flexDirection: 'row' }, style]}
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={text}
+    >
+      <Animated.View
+        style={{
+          flexDirection: 'row',
+          transform: [{ translateX: animated }],
+        }}
+      >
+        <Text
+          numberOfLines={1}
+          onLayout={(e) => setContentWidth(e.nativeEvent.layout.width)}
+          style={[textStyle, { includeFontPadding: false }]}
+        >
+          {text}
+        </Text>
+        {/* Duplicate for seamless looping */}
+        <Text numberOfLines={1} style={[textStyle, { marginLeft: 40, includeFontPadding: false }]}>
+          {text}
+        </Text>
+      </Animated.View>
+    </View>
+  );
 }
 
 const INITIAL_GOALS = {
@@ -115,25 +177,27 @@ export default function JournalDashboard() {
           }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Reframe Sentence Banner */}
+          {/* Reframe Sentence Banner with Marquee */}
           <View
             style={{
               backgroundColor: theme.colors.primary,
               padding: theme.spacing.md,
               borderRadius: 10,
               marginBottom: theme.spacing.lg,
+              overflow: 'hidden',
             }}
           >
-            <Text
-              style={{
+            <MarqueeText
+              text="“There is no such thing as failure, only feedback!.”"
+              speed={80}
+              textStyle={{
                 color: theme.colors.surface,
                 fontWeight: '700',
                 fontSize: theme.typography.subheading.fontSize,
                 lineHeight: 24,
               }}
-            >
-              “There is no such thing as failure, only feedback!.”
-            </Text>
+              style={{ flex: 1 }}
+            />
           </View>
 
           {/* Calendar Strip + Goals */}
