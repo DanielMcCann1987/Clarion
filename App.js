@@ -5,6 +5,7 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from './src/design/ThemeProvider';
 import MainNavigator from './src/navigation/MainNavigator';
+import { AuthProvider } from './src/context/AuthContext';
 
 function AppContainer() {
   const { theme, mode } = useTheme();
@@ -23,7 +24,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider initial="dark">
-        <AppContainer />
+        <AuthProvider>
+          <AppContainer />
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

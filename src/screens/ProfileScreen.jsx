@@ -1,97 +1,87 @@
 // src/screens/ProfileScreen.jsx
 import React from 'react';
-import { Text, TouchableOpacity, View, Switch, ScrollView } from 'react-native';
+import { Text, TouchableOpacity, View, Switch } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
 import Header from '../components/Header';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
   const { theme, mode, toggle } = useTheme();
+  const { logout } = useAuth();
 
-  // Keep original style but add a bit of vertical gap after header
   return (
     <ScreenContainer>
       <Header title="Profile & Settings" />
-      <ScrollView contentContainerStyle={{ paddingTop: theme.spacing.md, paddingBottom: theme.spacing.lg }}>
-        {/* Account */}
-        <View style={{ marginBottom: theme.spacing.lg }}>
-          <Text style={{ color: theme.colors.text, fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-            Account
-          </Text>
-          <Text style={{ color: theme.colors.muted, marginBottom: 8 }}>daniel@example.com</Text>
-          <TouchableOpacity
-            style={{
-              paddingVertical: 12,
-              paddingHorizontal: 20,
-              backgroundColor: theme.colors.primary,
-              borderRadius: 8,
-              alignSelf: 'flex-start',
-              marginTop: 4,
-            }}
-          >
-            <Text style={{ color: theme.colors.surface, fontWeight: '600' }}>Logout</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Theme */}
-        <View style={{ marginBottom: theme.spacing.lg }}>
-          <Text style={{ color: theme.colors.text, fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-            Theme
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ color: theme.colors.text, marginBottom: 4 }}>
-                {mode === 'dark' ? 'Dark Mode' : 'Light Mode'}
-              </Text>
-              <Text style={{ color: theme.colors.muted, fontSize: 12 }}>Toggle appearance</Text>
-            </View>
-            <Switch
-              value={mode === 'dark'}
-              onValueChange={toggle}
-              thumbColor={theme.colors.surface}
-              trackColor={{ false: theme.colors.muted, true: theme.colors.primary }}
-            />
-          </View>
-        </View>
+      <View style={{ marginBottom: theme.spacing.md }}>
+        <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Account</Text>
+        <Text style={{ color: theme.colors.muted, marginTop: 4 }}>daniel@example.com</Text>
+        <TouchableOpacity
+          style={{
+            marginTop: 8,
+            padding: 10,
+            backgroundColor: theme.colors.primary,
+            borderRadius: 6,
+            width: 120,
+            alignItems: 'center',
+          }}
+          onPress={() => {
+            logout();
+          }}
+        >
+          <Text style={{ color: theme.colors.surface, fontWeight: '600' }}>Logout</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Export */}
-        <View style={{ marginBottom: theme.spacing.lg }}>
-          <Text style={{ color: theme.colors.text, fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-            Export
+      <View style={{ marginBottom: theme.spacing.md }}>
+        <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Theme</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, gap: 12 }}>
+          <Text style={{ color: theme.colors.text, marginRight: 8 }}>
+            {mode === 'dark' ? 'Dark Mode' : 'Light Mode'}
           </Text>
-          <TouchableOpacity
-            style={{
-              paddingVertical: 14,
-              paddingHorizontal: 20,
-              backgroundColor: theme.colors.secondary,
-              borderRadius: 8,
-              alignSelf: 'flex-start',
-            }}
-          >
-            <Text style={{ color: theme.colors.surface, fontWeight: '600' }}>Export CSV / Markdown</Text>
-          </TouchableOpacity>
+          <Switch
+            value={mode === 'dark'}
+            onValueChange={toggle}
+            thumbColor={theme.colors.surface}
+            trackColor={{ false: theme.colors.muted, true: theme.colors.primary }}
+          />
         </View>
+      </View>
 
-        {/* Privacy */}
-        <View style={{ marginBottom: theme.spacing.lg }}>
-          <Text style={{ color: theme.colors.text, fontWeight: '600', fontSize: 16, marginBottom: 4 }}>
-            Privacy
-          </Text>
-          <TouchableOpacity
-            style={{
-              paddingVertical: 14,
-              paddingHorizontal: 20,
-              backgroundColor: 'transparent',
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: theme.colors.error,
-              alignSelf: 'flex-start',
-            }}
-          >
-            <Text style={{ color: theme.colors.error, fontWeight: '600' }}>Delete All Data</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      <View style={{ marginBottom: theme.spacing.md }}>
+        <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Export</Text>
+        <TouchableOpacity
+          style={{
+            marginTop: 6,
+            padding: 10,
+            backgroundColor: theme.colors.secondary,
+            borderRadius: 6,
+            width: 150,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: theme.colors.surface }}>Export CSV / Markdown</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={{ marginBottom: theme.spacing.md }}>
+        <Text style={{ color: theme.colors.text, fontWeight: '600' }}>Privacy</Text>
+        <TouchableOpacity
+          style={{
+            marginTop: 6,
+            padding: 10,
+            backgroundColor: theme.colors.card,
+            borderRadius: 6,
+            borderWidth: 1,
+            borderColor: theme.colors.error,
+            width: 180,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: theme.colors.error }}>Delete All Data</Text>
+        </TouchableOpacity>
+      </View>
     </ScreenContainer>
   );
 }
