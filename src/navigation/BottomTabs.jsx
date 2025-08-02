@@ -2,11 +2,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import JournalStack from './JournalStack';
-import HistoryScreen from '../screens/HistoryScreen';
+import HistoryStack from './HistoryStack'; // <--- use stack here
 import InsightsScreen from '../screens/InsightsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useTheme } from '../design/ThemeProvider';
-import { StyleSheet, View } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -47,29 +47,29 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'Journal',
           tabBarIcon: ({ color, focused }) => (
-            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+            <ViewWrapper focused={focused} theme={theme}>
               <MaterialCommunityIcons
                 name="message-text-outline"
                 size={ICON_SIZE}
                 color={focused ? theme.colors.card : color}
               />
-            </View>
+            </ViewWrapper>
           ),
         }}
       />
       <Tab.Screen
         name="History"
-        component={HistoryScreen}
+        component={HistoryStack} // <--- updated
         options={{
           tabBarLabel: 'History',
           tabBarIcon: ({ color, focused }) => (
-            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+            <ViewWrapper focused={focused} theme={theme}>
               <MaterialCommunityIcons
                 name="history"
                 size={ICON_SIZE}
                 color={focused ? theme.colors.card : color}
               />
-            </View>
+            </ViewWrapper>
           ),
         }}
       />
@@ -79,13 +79,13 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'Insights',
           tabBarIcon: ({ color, focused }) => (
-            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+            <ViewWrapper focused={focused} theme={theme}>
               <MaterialCommunityIcons
                 name="chart-line"
                 size={ICON_SIZE}
                 color={focused ? theme.colors.card : color}
               />
-            </View>
+            </ViewWrapper>
           ),
         }}
       />
@@ -95,17 +95,25 @@ export default function BottomTabs() {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <View style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+            <ViewWrapper focused={focused} theme={theme}>
               <MaterialCommunityIcons
                 name="account-circle"
                 size={ICON_SIZE}
                 color={focused ? theme.colors.card : color}
               />
-            </View>
+            </ViewWrapper>
           ),
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+function ViewWrapper({ children, focused, theme }) {
+  return (
+    <Text style={focused ? styles.activeWrapper(theme) : styles.inactiveWrapper()}>
+      {children}
+    </Text>
   );
 }
 
