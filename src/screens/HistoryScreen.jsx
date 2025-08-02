@@ -1,117 +1,97 @@
-// src/screens/HistoryScreen.jsx
-import React, { useState, useMemo } from 'react';
-import {
-  Text,
-  View,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, TextInput, Text, StyleSheet } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import Header from '../components/Header';
-import { useTheme } from '../design/ThemeProvider';
 import HistoryListItem from '../components/HistoryListItem';
+import { useTheme } from '../design/ThemeProvider';
+import { useNavigation } from '@react-navigation/native';
 
+// Mock or replace with real fetch from Supabase
 const MOCK_ENTRIES = [
   {
     id: '1',
-    title: 'Morning Reflection',
-    entry: "I felt anxious about work, but realized practice helps.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2h ago
+    identity_sentence: "I'm choosing clarity over the old nicotine story.",
+    entry_text: 'Felt anxious after drinking, realized the urge was just a pattern...',
+    created_at: new Date().toISOString(),
     favorite: false,
   },
   {
     id: '2',
-    title: 'Nicotine Insight',
-    entry: "The cravings were just a story; clarity feels better.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    identity_sentence: "I’m reclaiming my nervous system.",
+    entry_text: 'Morning reflection: discomfort is information, not threat...',
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     favorite: true,
-  },
-  {
-    id: '3',
-    title: 'Streak Motivation',
-    entry: "Three days in a row, feeling stronger and more present.",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
-    favorite: false,
   },
 ];
 
-export default function HistoryScreen({ navigation }) {
+export default function HistoryScreen() {
   const { theme } = useTheme();
-  const [search, setSearch] = useState('');
+  const navigation = useNavigation();
+  const [entries, setEntries] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  // filter entries by title or snippet
-  const filtered = useMemo(() => {
-    if (!search.trim()) return MOCK_ENTRIES;
-    const lower = search.toLowerCase();
-    return MOCK_ENTRIES.filter(
-      (e) =>
-        e.title.toLowerCase().includes(lower) ||
-        e.entry.toLowerCase().includes(lower)
+  useEffect(() => {
+    // TODO: Replace with real fetch and apply RLS (user filter)
+    setEntries(MOCK_ENTRIES);
+  }, []);
+
+  const filtered = entries.filter((e) => {
+    if (!filter) return true;
+    const lower = filter.toLowerCase();
+    return (
+      (e.entry_text && e.entry_text.toLowerCase().includes(lower)) ||
+      (e.identity_sentence && e.identity_sentence.toLowerCase().includes(lower))
     );
-  }, [search]);
+  });
 
-  const renderItem = ({ item }) => (
-    <HistoryListItem
-      title={item.title}
-      snippet={item.entry}
-      createdAt={item.createdAt}
-      favorite={item.favorite}
-      onPress={() => navigation.navigate('Analysis', { entryId: item.id })}
-    />
-  );
+  const handlePress = (entry) => {
+    navigation.navigate('HistoryDetail', { entry });
+  };
 
   return (
     <ScreenContainer>
       <Header title="History" />
-
-      {/* Search bar */}
-      <View style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.md }}>
+      <View style={{ paddingHorizontal: theme.spacing.md, flex: 1 }}>
         <TextInput
-          placeholder="Search entries"
+          placeholder="Search by date, tag, insight..."
           placeholderTextColor={theme.colors.muted}
-          value={search}
-          onChangeText={setSearch}
+          value={filter}
+          onChangeText={setFilter}
           style={[
-            styles.searchInput,
+            styles.search,
             {
               backgroundColor: theme.colors.card,
               color: theme.colors.text,
-              borderColor: theme.colors.border,
               borderRadius: 10,
-              padding: theme.spacing.sm,
+              paddingHorizontal: 14,
+              marginBottom: theme.spacing.md,
             },
           ]}
         />
-      </View>
 
-      {/* Entry list */}
-      {filtered.length === 0 ? (
-        <View
-          style={{
-            padding: theme.spacing.md,
-            backgroundColor: theme.colors.card,
-            borderRadius: 10,
-          }}
-        >
-          <Text style={{ color: theme.colors.text }}>No entries match your search.</Text>
-        </View>
-      ) : (
         <FlatList
-          data={filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
+          data={filtered}
+          keyExtractor={(i) => i.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
+          renderItem={({ item }) => (
+            <HistoryListItem entry={item} onPress={handlePress} />
+          )}
+          ListEmptyComponent={
+            <Text style={{ color: theme.colors.muted, marginTop: 20, textAlign: 'center' }}>
+              No entries match.
+            </Text>
+          }
         />
-      )}
+      </View>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  searchInput: {
+  search: {
+    height: 44,
     fontSize: 14,
+    marginTop: 8,
   },
 });
