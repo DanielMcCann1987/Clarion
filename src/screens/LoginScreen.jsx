@@ -11,11 +11,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
+import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/clarionlogo.png';
 
-export default function LoginScreen({ onLogin }) {
+export default function LoginScreen() {
   const navigation = useNavigation();
   const { theme } = useTheme();
+  const { login } = useAuth();
   const styles = getStyles(theme);
 
   const [email, setEmail] = useState('');
@@ -23,7 +25,7 @@ export default function LoginScreen({ onLogin }) {
 
   const handleLogin = () => {
     // mock login
-    if (onLogin) onLogin();
+    login();
   };
 
   return (
