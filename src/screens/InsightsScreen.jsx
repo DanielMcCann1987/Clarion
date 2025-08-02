@@ -1,30 +1,15 @@
 // src/screens/InsightsScreen.jsx
 import React, { useMemo } from 'react';
-import { Text, View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, ScrollView, Text } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import Header from '../components/Header';
 import { useTheme } from '../design/ThemeProvider';
-
-/**
- * Lightweight placeholder for a chart until you integrate a real one.
- * You can replace this with your TrendChart component.
- */
-function TrendChartPlaceholder({ label }) {
-  const { theme } = useTheme();
-  return (
-    <View
-      style={{
-        height: 120,
-        backgroundColor: theme.colors.highlight,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text style={{ color: theme.colors.text }}>{label}</Text>
-    </View>
-  );
-}
+import IdentityBanner from '../components/IdentityBanner';
+import InsightCard from '../components/InsightCard';
+import BeliefTrendItem from '../components/BeliefTrendItem';
+import ReframeChip from '../components/ReframeChip';
+import MetricCard from '../components/MetricCard';
+import TrendChart from '../components/TrendChart'; // fallback to placeholder version if you have that
 
 const MOCK_ANALYSIS = [
   {
@@ -53,9 +38,9 @@ const MOCK_ANALYSIS = [
 export default function InsightsScreen() {
   const { theme } = useTheme();
 
-  // Compute current identity (most recent non-empty identity sentence)
+  // Current identity from most recent
   const currentIdentity = useMemo(() => {
-    if (MOCK_ANALYSIS.length === 0) return '';
+    if (!MOCK_ANALYSIS.length) return '';
     return MOCK_ANALYSIS[0].identitySentence;
   }, []);
 
@@ -67,164 +52,54 @@ export default function InsightsScreen() {
         map[b] = (map[b] || 0) + 1;
       });
     });
-    // to array of {belief, count}
     return Object.entries(map)
       .map(([belief, count]) => ({ belief, count }))
       .sort((a, b) => b.count - a.count);
   }, []);
 
-  // Reframe library
-  const reframes = useMemo(() => {
-    return MOCK_ANALYSIS.map((a) => a.reframe);
-  }, []);
+  // Reframes
+  const reframes = useMemo(() => MOCK_ANALYSIS.map((a) => a.reframe), []);
 
-  // Streak (mocked) and consistency
+  // Metrics (mocked)
   const streakDays = 5;
   const consistencyPercent = 80;
 
   return (
     <ScreenContainer>
       <Header title="Insights" />
-
       <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.lg }}>
-        {/* Identity Summary */}
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            padding: theme.spacing.md,
-            borderRadius: 12,
-            marginBottom: theme.spacing.lg,
-          }}
-        >
-          <Text style={{ color: theme.colors.secondary, fontWeight: '600', marginBottom: 4 }}>
-            Current Identity
-          </Text>
-          <Text
-            style={{
-              color: theme.colors.text,
-              fontSize: theme.typography.subheading.fontSize,
-              fontWeight: '600',
-            }}
-          >
-            {currentIdentity}
-          </Text>
-          <Text style={{ color: theme.colors.muted, marginTop: 4 }}>
-            Confidence: 72%
-          </Text>
-        </View>
+        {/* Identity Banner */}
+        <IdentityBanner identitySentence={currentIdentity} confidence={72} />
 
         {/* Language Shift */}
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            padding: theme.spacing.md,
-            borderRadius: 12,
-            marginBottom: theme.spacing.lg,
-          }}
-        >
-          <Text style={{ color: theme.colors.secondary, fontWeight: '600', marginBottom: 6 }}>
-            Language Shift
-          </Text>
-          <TrendChartPlaceholder label="Generalisation vs Ownership over time" />
-        </View>
+        <InsightCard title="Language Shift">
+          <TrendChart label="Generalisation vs Ownership over time" />
+        </InsightCard>
 
         {/* Belief Trends */}
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            padding: theme.spacing.md,
-            borderRadius: 12,
-            marginBottom: theme.spacing.lg,
-          }}
-        >
-          <Text style={{ color: theme.colors.secondary, fontWeight: '600', marginBottom: 6 }}>
-            Belief Trends
-          </Text>
+        <InsightCard title="Belief Trends">
           {beliefCounts.map((b) => (
-            <View
-              key={b.belief}
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: theme.spacing.sm,
-              }}
-            >
-              <Text style={{ color: theme.colors.text }}>{b.belief}</Text>
-              <View
-                style={{
-                  backgroundColor: theme.colors.primary,
-                  borderRadius: 12,
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                }}
-              >
-                <Text style={{ color: theme.colors.surface, fontWeight: '600' }}>{b.count}</Text>
-              </View>
-            </View>
+            <BeliefTrendItem key={b.belief} belief={b.belief} count={b.count} />
           ))}
-        </View>
+        </InsightCard>
 
         {/* Reframe Library */}
-        <View
-          style={{
-            backgroundColor: theme.colors.card,
-            padding: theme.spacing.md,
-            borderRadius: 12,
-            marginBottom: theme.spacing.lg,
-          }}
-        >
-          <Text style={{ color: theme.colors.secondary, fontWeight: '600', marginBottom: 6 }}>
-            Reframe Library
-          </Text>
+        <InsightCard title="Reframe Library">
           {reframes.map((r, i) => (
-            <View
-              key={i}
-              style={{
-                backgroundColor: theme.colors.highlight,
-                padding: theme.spacing.sm,
-                borderRadius: 8,
-                marginBottom: theme.spacing.sm,
-              }}
-            >
-              <Text style={{ color: theme.colors.text }}>{r}</Text>
-            </View>
+            <ReframeChip key={i} text={r} />
           ))}
-        </View>
+        </InsightCard>
 
-        {/* Streak / Consistency */}
+        {/* Metrics row */}
         <View
           style={{
             flexDirection: 'row',
-            gap: theme.spacing.md,
-            marginBottom: theme.spacing.lg,
+            marginTop: theme.spacing.sm,
+            gap: theme.spacing.md, // if unsupported, replace with marginRight on first
           }}
         >
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: theme.colors.card,
-              padding: theme.spacing.md,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: theme.colors.muted, fontSize: 12 }}>Streak</Text>
-            <Text style={{ color: theme.colors.text, fontWeight: '700', marginTop: 4 }}>
-              {streakDays} days
-            </Text>
-          </View>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: theme.colors.card,
-              padding: theme.spacing.md,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: theme.colors.muted, fontSize: 12 }}>Consistency</Text>
-            <Text style={{ color: theme.colors.text, fontWeight: '700', marginTop: 4 }}>
-              {consistencyPercent}%
-            </Text>
-          </View>
+          <MetricCard label="Streak" value={`${streakDays} days`} style={{ marginRight: theme.spacing.md / 2 }} />
+          <MetricCard label="Consistency" value={`${consistencyPercent}%`} style={{ marginLeft: theme.spacing.md / 2 }} />
         </View>
       </ScrollView>
     </ScreenContainer>
