@@ -88,8 +88,18 @@ export default function JournalEntryScreen({ navigation }) {
     setLoading(true);
     setAnalysisResult(null);
     setTimeout(() => {
+      const result = mockAnalyze(entry.trim());
+      setAnalysisResult(result);
+      // Here we simulate saving the analyzed entry to history (could be Supabase or local storage)
+      const savedEntry = {
+        entry: entry.trim(),
+        date: new Date().toISOString(),
+        analyzed: true,
+        tags,
+        analysis: result,
+      };
+      console.log('Saved analyzed entry:', savedEntry); // Replace with actual save
       setLoading(false);
-      setAnalysisResult(mockAnalyze(entry.trim()));
     }, 800);
   };
 
@@ -98,6 +108,14 @@ export default function JournalEntryScreen({ navigation }) {
       Alert.alert('Please write something to save.');
       return;
     }
+    // You can also save this to your backend or local storage with analyzed: false
+    const savedEntry = {
+      entry: entry.trim(),
+      date: new Date().toISOString(),
+      analyzed: false,
+      tags,
+    };
+    console.log('Saved without analysis:', savedEntry); // Replace with actual save
     Alert.alert('Saved', 'Your journal entry was saved without analysis.');
     navigation.navigate('History');
   };
