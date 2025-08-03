@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
+import { Feather } from '@expo/vector-icons';
 
 export default function SignupScreen() {
   const { theme } = useTheme();
@@ -24,6 +25,8 @@ export default function SignupScreen() {
   const [confirm, setConfirm] = useState('');
   const [focusedField, setFocusedField] = useState(null);
   const [touched, setTouched] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const isNameValid = name.trim().length > 0;
   const isValidEmail = email.trim().length > 0;
@@ -50,7 +53,7 @@ export default function SignupScreen() {
         <View style={[styles.card, { backgroundColor: theme.colors.card }]}>
           <Text style={[styles.title, { color: theme.colors.text }]}>Create account</Text>
           <Text style={[styles.subtitle, { color: theme.colors.muted }]}>
-            Write. Reflect. Transform with the Clarion.
+            Write. Reflect. Transform with the Milton Model.
           </Text>
 
           <View style={styles.form}>
@@ -110,25 +113,39 @@ export default function SignupScreen() {
             {/* Password */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.colors.text }]}>Password</Text>
-              <TextInput
-                placeholder="At least 6 characters"
-                placeholderTextColor={theme.colors.muted}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                onFocus={() => setFocusedField('password')}
-                onBlur={() => {
-                  setFocusedField(null);
-                  setTouched((t) => ({ ...t, password: true }));
-                }}
-                style={[
-                  styles.input(theme),
-                  focusedField === 'password' && { borderColor: theme.colors.accent },
-                  touched.password && password.length < 6 && { borderColor: '#ff6b6b' },
-                ]}
-                selectionColor={theme.colors.accent}
-              />
+              <View style={styles.passwordWrapper}>
+                <TextInput
+                  placeholder="At least 6 characters"
+                  placeholderTextColor={theme.colors.muted}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => {
+                    setFocusedField(null);
+                    setTouched((t) => ({ ...t, password: true }));
+                  }}
+                  style={[
+                    styles.input(theme),
+                    focusedField === 'password' && { borderColor: theme.colors.accent },
+                    touched.password && password.length < 6 && { borderColor: '#ff6b6b' },
+                    { flex: 1, paddingRight: 42, marginBottom: 0 },
+                  ]}
+                  selectionColor={theme.colors.accent}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword((v) => !v)}
+                  style={styles.eyeContainer}
+                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <Feather
+                    name={showPassword ? 'eye' : 'eye-off'}
+                    size={20}
+                    color={theme.colors.muted}
+                  />
+                </TouchableOpacity>
+              </View>
               {touched.password && password.length < 6 && (
                 <Text style={styles.errorText}>Password must be at least 6 characters.</Text>
               )}
@@ -137,25 +154,39 @@ export default function SignupScreen() {
             {/* Confirm */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.colors.text }]}>Confirm Password</Text>
-              <TextInput
-                placeholder="Repeat password"
-                placeholderTextColor={theme.colors.muted}
-                value={confirm}
-                onChangeText={setConfirm}
-                secureTextEntry
-                autoCapitalize="none"
-                onFocus={() => setFocusedField('confirm')}
-                onBlur={() => {
-                  setFocusedField(null);
-                  setTouched((t) => ({ ...t, confirm: true }));
-                }}
-                style={[
-                  styles.input(theme),
-                  focusedField === 'confirm' && { borderColor: theme.colors.accent },
-                  touched.confirm && !passwordsMatch && { borderColor: '#ff6b6b' },
-                ]}
-                selectionColor={theme.colors.accent}
-              />
+              <View style={styles.passwordWrapper}>
+                <TextInput
+                  placeholder="Repeat password"
+                  placeholderTextColor={theme.colors.muted}
+                  value={confirm}
+                  onChangeText={setConfirm}
+                  secureTextEntry={!showConfirm}
+                  autoCapitalize="none"
+                  onFocus={() => setFocusedField('confirm')}
+                  onBlur={() => {
+                    setFocusedField(null);
+                    setTouched((t) => ({ ...t, confirm: true }));
+                  }}
+                  style={[
+                    styles.input(theme),
+                    focusedField === 'confirm' && { borderColor: theme.colors.accent },
+                    touched.confirm && !passwordsMatch && { borderColor: '#ff6b6b' },
+                    { flex: 1, paddingRight: 42, marginBottom: 0 },
+                  ]}
+                  selectionColor={theme.colors.accent}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirm((v) => !v)}
+                  style={styles.eyeContainer}
+                  accessibilityLabel={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                >
+                  <Feather
+                    name={showConfirm ? 'eye' : 'eye-off'}
+                    size={20}
+                    color={theme.colors.muted}
+                  />
+                </TouchableOpacity>
+              </View>
               {touched.confirm && !passwordsMatch && (
                 <Text style={styles.errorText}>Passwords do not match.</Text>
               )}
@@ -235,6 +266,20 @@ const styles = StyleSheet.create({
     borderColor: '#2b2f4d',
     fontSize: 16,
   }),
+  passwordWrapper: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  eyeContainer: {
+    position: 'absolute',
+    right: 12,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   errorText: {
     color: '#ff6b6b',
     marginTop: 4,
