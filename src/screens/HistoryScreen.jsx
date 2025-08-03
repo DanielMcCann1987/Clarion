@@ -1,39 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, FlatList, TextInput, Text, StyleSheet } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import Header from '../components/Header';
 import HistoryListItem from '../components/HistoryListItem';
 import { useTheme } from '../design/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
-
-// Mock or replace with real fetch from Supabase
-const MOCK_ENTRIES = [
-  {
-    id: '1',
-    identity_sentence: "I'm choosing clarity over the old nicotine story.",
-    entry_text: 'Felt anxious after drinking, realized the urge was just a pattern...',
-    created_at: new Date().toISOString(),
-    favorite: false,
-  },
-  {
-    id: '2',
-    identity_sentence: "I’m reclaiming my nervous system.",
-    entry_text: 'Morning reflection: discomfort is information, not threat...',
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    favorite: true,
-  },
-];
+import { useEntries } from '../context/EntriesContext';
 
 export default function HistoryScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation();
-  const [entries, setEntries] = useState([]);
+  const { entries } = useEntries();
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    // TODO: Replace with real fetch and apply RLS (user filter)
-    setEntries(MOCK_ENTRIES);
-  }, []);
 
   const filtered = entries.filter((e) => {
     if (!filter) return true;
