@@ -20,7 +20,6 @@ import Header from '../components/Header';
 
 const TAG_OPTIONS = ['anxiety', 'smoking', 'clarity', 'stress', 'gratitude'];
 
-// mock analyzer used for design/prototyping
 function mockAnalyze(entryText) {
   return {
     identity_sentence: 'I step away from passive repetition and choose my own direction.',
@@ -94,7 +93,15 @@ export default function JournalEntryScreen({ navigation }) {
     }, 800);
   };
 
-  // Navigate to AnalysisDetail once result is ready
+  const saveWithoutAnalysis = () => {
+    if (!entry.trim()) {
+      Alert.alert('Please write something to save.');
+      return;
+    }
+    Alert.alert('Saved', 'Your journal entry was saved without analysis.');
+    navigation.navigate('History');
+  };
+
   useEffect(() => {
     if (analysisResult) {
       navigation.navigate('AnalysisDetail', { analysis: analysisResult });
@@ -178,6 +185,22 @@ export default function JournalEntryScreen({ navigation }) {
           </ScrollView>
 
           <ThemedButton title="Analyze with Milton Model" onPress={submit} disabled={!entry.trim() || loading} />
+
+          <TouchableOpacity
+            onPress={saveWithoutAnalysis}
+            disabled={!entry.trim() || loading}
+            style={{
+              backgroundColor: theme.colors.accent,
+              paddingVertical: 14,
+              borderRadius: 10,
+              alignItems: 'center',
+              marginTop: theme.spacing.sm,
+            }}
+          >
+            <Text style={{ color: '#000', fontSize: 16, fontWeight: '600' }}>
+              Save Without Analyzing
+            </Text>
+          </TouchableOpacity>
 
           {loading && (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: theme.spacing.sm }}>
