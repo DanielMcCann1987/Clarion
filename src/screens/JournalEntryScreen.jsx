@@ -1,5 +1,5 @@
 // src/screens/JournalEntryScreen.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextInput,
   Text,
@@ -20,6 +20,55 @@ import Header from '../components/Header';
 
 const TAG_OPTIONS = ['anxiety', 'smoking', 'clarity', 'stress', 'gratitude'];
 
+// mock analyzer used for design/prototyping
+function mockAnalyze(entryText) {
+  return {
+    identity_sentence: 'I step away from passive repetition and choose my own direction.',
+    surface_structure: entryText,
+    deep_structure:
+      'I feel like I’ve been a passive observer—traveling along a shared path—witnessing repeated destructive cycles that continue even as I try to move away, suggesting unresolved emotional patterns following me.',
+    implied_beliefs: [
+      { type: 'Old', text: 'I’m stuck in cycles that keep repeating despite my attempts to move away.' },
+      { type: 'Shift', text: 'I can choose my own trajectory without carrying the crash with me.' },
+    ],
+    patterns: [
+      {
+        type: 'Cause-Effect',
+        example: 'Cars crashing into each other → even as I walk away',
+        explanation:
+          'Implies the chaos persists regardless of distancing, suggesting a residual tie to past impact.',
+      },
+      {
+        type: 'Embedded Metaphor',
+        example: 'Bus, car crashes, repeated impact',
+        explanation:
+          'The bus represents a collective or passive journey; the crashes symbolize recurring emotional damage.',
+      },
+      {
+        type: 'Presupposition',
+        example: 'As I walked from the bus',
+        explanation: 'Assumes a conscious decision to leave a passive state, indicating agency.',
+      },
+      {
+        type: 'Complex Equivalence',
+        example: 'Watching impact = feeling responsible or emotionally activated',
+        explanation:
+          'Equates observation of destruction with internal emotional activation or guilt.',
+      },
+      {
+        type: 'Deletion',
+        example: 'No explicit emotion described',
+        explanation:
+          'Leaves emotion unnamed, increasing subconscious weight and allowing interpretation.',
+      },
+    ],
+    reframe:
+      'I no longer have to absorb the damage I witness; stepping away doesn’t mean abandoning—it means choosing clarity while witnessing without being consumed.',
+    final_thought:
+      'You are no longer inside the crash. You are no longer inside the loop. You are becoming the one who walks on.',
+  };
+}
+
 export default function JournalEntryScreen({ navigation }) {
   const { theme } = useTheme();
   const [entry, setEntry] = useState('');
@@ -29,9 +78,8 @@ export default function JournalEntryScreen({ navigation }) {
   const [favorited, setFavorited] = useState(false);
   const [affirmationSaved, setAffirmationSaved] = useState(false);
 
-  const toggleTag = (tag) => {
+  const toggleTag = (tag) =>
     setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
-  };
 
   const submit = () => {
     if (!entry.trim()) {
@@ -42,14 +90,16 @@ export default function JournalEntryScreen({ navigation }) {
     setAnalysisResult(null);
     setTimeout(() => {
       setLoading(false);
-      setAnalysisResult({
-        identitySentence: "I'm choosing clarity over the old nicotine story.",
-        reframe: 'You are reclaiming your nervous system and trading illusion for truth.',
-        deepStructure:
-          'A shift from seeking relief to seeking awareness; addiction was a story, now replaced by empowerment.',
-      });
-    }, 1000);
+      setAnalysisResult(mockAnalyze(entry.trim()));
+    }, 800);
   };
+
+  // Navigate to AnalysisDetail once result is ready
+  useEffect(() => {
+    if (analysisResult) {
+      navigation.navigate('AnalysisDetail', { analysis: analysisResult });
+    }
+  }, [analysisResult]);
 
   return (
     <ScreenContainer>
@@ -135,22 +185,6 @@ export default function JournalEntryScreen({ navigation }) {
               <Text style={{ color: theme.colors.text, marginLeft: 8 }}>Analyzing...</Text>
             </View>
           )}
-
-          {analysisResult && (
-            <AnalysisCard
-              identitySentence={analysisResult.identitySentence}
-              reframe={analysisResult.reframe}
-              favorited={favorited}
-              onFavorite={() => setFavorited((f) => !f)}
-              onSaveAffirmation={() => {
-                setAffirmationSaved(true);
-                Alert.alert('Affirmation saved');
-              }}
-              onCopyContract={() => Alert.alert('Contract copied')}
-              onSaveScript={() => Alert.alert('Script saved')}
-              onCreateReminder={() => Alert.alert('Reminder created')}
-            />
-          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenContainer>
@@ -163,7 +197,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     padding: 12,
-    textAlignVertical: 'top',
   },
   tag: {
     paddingVertical: 6,
