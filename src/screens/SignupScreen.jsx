@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
 import { Feather } from '@expo/vector-icons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function SignupScreen() {
   const { theme } = useTheme();
@@ -46,9 +46,12 @@ export default function SignupScreen() {
 
   return (
     <ScreenContainer>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.outerWrapper}
+      <KeyboardAwareScrollView
+        enableOnAndroid
+        extraScrollHeight={Platform.OS === 'ios' ? 10 : 20}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.outerWrapper}
+        showsVerticalScrollIndicator={false}
       >
         <View style={[styles.card, { backgroundColor: theme.colors.card }]}>
           <Text style={[styles.title, { color: theme.colors.text }]}>Create account</Text>
@@ -215,14 +218,14 @@ export default function SignupScreen() {
             </View>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
   outerWrapper: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
   },

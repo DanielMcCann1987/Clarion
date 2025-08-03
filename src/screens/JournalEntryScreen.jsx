@@ -9,6 +9,8 @@ import {
   StyleSheet,
   Alert,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import ThemedButton from '../components/ThemedButton';
@@ -52,94 +54,105 @@ export default function JournalEntryScreen({ navigation }) {
   return (
     <ScreenContainer>
       <Header title="New Entry" showBack onBack={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing.lg }}>
-        <Text
-          style={{
-            color: theme.colors.text,
-            fontSize: theme.typography.subheading.fontSize,
-            fontWeight: theme.typography.subheading.fontWeight,
-            marginBottom: theme.spacing.sm,
-          }}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: theme.spacing.lg + 100 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          What’s going on inside?
-        </Text>
-
-        <TextInput
-          multiline
-          placeholder="Describe what you're feeling, thinking, reacting to…"
-          placeholderTextColor={theme.colors.muted}
-          value={entry}
-          onChangeText={setEntry}
-          style={[
-            styles.textInput,
-            {
-              backgroundColor: theme.colors.card,
-              borderColor: theme.colors.border,
+          <Text
+            style={{
               color: theme.colors.text,
-            },
-          ]}
-        />
-
-        <Text
-          style={{
-            color: theme.colors.text,
-            marginTop: theme.spacing.md,
-            marginBottom: 6,
-            fontWeight: '600',
-          }}
-        >
-          Tags
-        </Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
-          {TAG_OPTIONS.map((t) => (
-            <TouchableOpacity
-              key={t}
-              onPress={() => toggleTag(t)}
-              style={[
-                styles.tag,
-                {
-                  borderColor: tags.includes(t) ? theme.colors.primary : theme.colors.muted,
-                  backgroundColor: tags.includes(t) ? theme.colors.primary : 'transparent',
-                },
-              ]}
-            >
-              <Text
-                style={{
-                  color: tags.includes(t) ? theme.colors.surface : theme.colors.text,
-                  fontSize: theme.typography.body.fontSize - 2,
-                }}
-              >
-                {t}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        <ThemedButton title="Analyze with Milton Model" onPress={submit} disabled={!entry.trim() || loading} />
-
-        {loading && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: theme.spacing.sm }}>
-            <ActivityIndicator color={theme.colors.accent} />
-            <Text style={{ color: theme.colors.text, marginLeft: 8 }}>Analyzing...</Text>
-          </View>
-        )}
-
-        {analysisResult && (
-          <AnalysisCard
-            identitySentence={analysisResult.identitySentence}
-            reframe={analysisResult.reframe}
-            favorited={favorited}
-            onFavorite={() => setFavorited((f) => !f)}
-            onSaveAffirmation={() => {
-              setAffirmationSaved(true);
-              Alert.alert('Affirmation saved');
+              fontSize: theme.typography.subheading.fontSize,
+              fontWeight: theme.typography.subheading.fontWeight,
+              marginBottom: theme.spacing.sm,
             }}
-            onCopyContract={() => Alert.alert('Contract copied')}
-            onSaveScript={() => Alert.alert('Script saved')}
-            onCreateReminder={() => Alert.alert('Reminder created')}
+          >
+            What’s going on inside?
+          </Text>
+
+          <TextInput
+            multiline
+            placeholder="Describe what you're feeling, thinking, reacting to…"
+            placeholderTextColor={theme.colors.muted}
+            value={entry}
+            onChangeText={setEntry}
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: theme.colors.card,
+                borderColor: theme.colors.border,
+                color: theme.colors.text,
+              },
+            ]}
+            textAlignVertical="top"
           />
-        )}
-      </ScrollView>
+
+          <Text
+            style={{
+              color: theme.colors.text,
+              marginTop: theme.spacing.md,
+              marginBottom: 6,
+              fontWeight: '600',
+            }}
+          >
+            Tags
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: theme.spacing.md }}>
+            {TAG_OPTIONS.map((t) => (
+              <TouchableOpacity
+                key={t}
+                onPress={() => toggleTag(t)}
+                style={[
+                  styles.tag,
+                  {
+                    borderColor: tags.includes(t) ? theme.colors.primary : theme.colors.muted,
+                    backgroundColor: tags.includes(t) ? theme.colors.primary : 'transparent',
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: tags.includes(t) ? theme.colors.surface : theme.colors.text,
+                    fontSize: theme.typography.body.fontSize - 2,
+                  }}
+                >
+                  {t}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <ThemedButton title="Analyze with Milton Model" onPress={submit} disabled={!entry.trim() || loading} />
+
+          {loading && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: theme.spacing.sm }}>
+              <ActivityIndicator color={theme.colors.accent} />
+              <Text style={{ color: theme.colors.text, marginLeft: 8 }}>Analyzing...</Text>
+            </View>
+          )}
+
+          {analysisResult && (
+            <AnalysisCard
+              identitySentence={analysisResult.identitySentence}
+              reframe={analysisResult.reframe}
+              favorited={favorited}
+              onFavorite={() => setFavorited((f) => !f)}
+              onSaveAffirmation={() => {
+                setAffirmationSaved(true);
+                Alert.alert('Affirmation saved');
+              }}
+              onCopyContract={() => Alert.alert('Contract copied')}
+              onSaveScript={() => Alert.alert('Script saved')}
+              onCreateReminder={() => Alert.alert('Reminder created')}
+            />
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ScreenContainer>
   );
 }

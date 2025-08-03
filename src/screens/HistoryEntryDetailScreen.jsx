@@ -9,6 +9,8 @@ import {
   StyleSheet,
   Share,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
@@ -68,103 +70,115 @@ export default function HistoryEntryDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: theme.spacing.md }}>
-        {/* Identity Sentence */}
-        {entry.identity_sentence ? (
-          <View style={[detailStyles.section, { backgroundColor: theme.colors.primary }]}>
-            <Text style={[detailStyles.sectionTitle, { color: theme.colors.surface }]}>
-              Identity Sentence
+      {/* Keyboard avoiding + scrollable content */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // adjust if you have a custom header height
+      >
+        <ScrollView
+          contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 140 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Identity Sentence */}
+          {entry.identity_sentence ? (
+            <View style={[detailStyles.section, { backgroundColor: theme.colors.primary }]}>
+              <Text style={[detailStyles.sectionTitle, { color: theme.colors.surface }]}>
+                Identity Sentence
+              </Text>
+              {editing ? (
+                <TextInput
+                  value={entry.identity_sentence}
+                  onChangeText={(v) => setEntry((e) => ({ ...e, identity_sentence: v }))}
+                  style={[
+                    detailStyles.editableInput,
+                    { backgroundColor: theme.colors.card, color: theme.colors.text },
+                  ]}
+                  multiline
+                  textAlignVertical="top"
+                />
+              ) : (
+                <Text style={[detailStyles.content, { color: theme.colors.surface }]}>
+                  {entry.identity_sentence}
+                </Text>
+              )}
+            </View>
+          ) : null}
+
+          {/* Journal Entry Text */}
+          <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
+            <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>
+              Journal Entry
             </Text>
             {editing ? (
               <TextInput
-                value={entry.identity_sentence}
-                onChangeText={(v) => setEntry((e) => ({ ...e, identity_sentence: v }))}
+                value={entry.entry_text}
+                onChangeText={(v) => setEntry((e) => ({ ...e, entry_text: v }))}
                 style={[
                   detailStyles.editableInput,
-                  { backgroundColor: theme.colors.card, color: theme.colors.text },
+                  {
+                    backgroundColor: theme.colors.background,
+                    color: theme.colors.text,
+                    minHeight: 120,
+                  },
                 ]}
                 multiline
+                textAlignVertical="top"
               />
             ) : (
-              <Text style={[detailStyles.content, { color: theme.colors.surface }]}>
-                {entry.identity_sentence}
+              <Text style={[detailStyles.content, { color: theme.colors.text }]}>
+                {entry.entry_text || 'No content.'}
               </Text>
             )}
           </View>
-        ) : null}
 
-        {/* Journal Entry Text */}
-        <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
-          <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>
-            Journal Entry
-          </Text>
-          {editing ? (
-            <TextInput
-              value={entry.entry_text}
-              onChangeText={(v) => setEntry((e) => ({ ...e, entry_text: v }))}
-              style={[
-                detailStyles.editableInput,
-                {
-                  backgroundColor: theme.colors.background,
-                  color: theme.colors.text,
-                  minHeight: 120,
-                },
-              ]}
-              multiline
-            />
-          ) : (
-            <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-              {entry.entry_text || 'No content.'}
-            </Text>
-          )}
-        </View>
-
-        {/* Metadata / Flags */}
-        <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
-          <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>Details</Text>
-          <Text style={[detailStyles.metaText, { color: theme.colors.muted }]}>
-            {entry.created_at
-              ? `Created: ${new Date(entry.created_at).toLocaleString()}`
-              : 'Date unknown'}
-          </Text>
-          {entry.favorite && (
-            <Text style={[detailStyles.metaText, { color: theme.colors.primary }]}>
-              ★ Favorited
-            </Text>
-          )}
-        </View>
-
-        {/* Action icons bar below Details (Edit / Share / Duplicate) */}
-        <View style={styles.actionBarWrapper}>
-          <View style={styles.actionBar}>
-            <IconOnlyAction
-              label={editing ? 'Save' : 'Edit'}
-              onPress={handleEditToggle}
-              iconName={editing ? 'check' : 'edit-3'}
-              IconComponent={Feather}
-            />
-            <IconOnlyAction label="Share" onPress={handleShare} iconName="share" IconComponent={Entypo} />
-            <IconOnlyAction
-              label="Duplicate"
-              onPress={handleDuplicate}
-              iconName="copy"
-              IconComponent={Feather}
-            />
-          </View>
-        </View>
-
-        {/* Full Analysis (if present) */}
-        {entry.analysis_markdown ? (
+          {/* Metadata / Flags */}
           <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
-            <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>
-              Full Analysis
+            <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>Details</Text>
+            <Text style={[detailStyles.metaText, { color: theme.colors.muted }]}>
+              {entry.created_at
+                ? `Created: ${new Date(entry.created_at).toLocaleString()}`
+                : 'Date unknown'}
             </Text>
-            <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-              {entry.analysis_markdown}
-            </Text>
+            {entry.favorite && (
+              <Text style={[detailStyles.metaText, { color: theme.colors.primary }]}>
+                ★ Favorited
+              </Text>
+            )}
           </View>
-        ) : null}
-      </ScrollView>
+
+          {/* Action icons bar below Details (Edit / Share / Duplicate) */}
+          <View style={styles.actionBarWrapper}>
+            <View style={styles.actionBar}>
+              <IconOnlyAction
+                label={editing ? 'Save' : 'Edit'}
+                onPress={handleEditToggle}
+                iconName={editing ? 'check' : 'edit-3'}
+                IconComponent={Feather}
+              />
+              <IconOnlyAction label="Share" onPress={handleShare} iconName="share" IconComponent={Entypo} />
+              <IconOnlyAction
+                label="Duplicate"
+                onPress={handleDuplicate}
+                iconName="copy"
+                IconComponent={Feather}
+              />
+            </View>
+          </View>
+
+          {/* Full Analysis (if present) */}
+          {entry.analysis_markdown ? (
+            <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
+              <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>
+                Full Analysis
+              </Text>
+              <Text style={[detailStyles.content, { color: theme.colors.text }]}>
+                {entry.analysis_markdown}
+              </Text>
+            </View>
+          ) : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ScreenContainer>
   );
 }
