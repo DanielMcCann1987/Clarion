@@ -14,6 +14,7 @@ import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import logo from '../../assets/clarionlogo.png';
 
 export default function LoginScreen() {
@@ -36,71 +37,79 @@ export default function LoginScreen() {
 
   return (
     <ScreenContainer>
-      {/* Top block: logo above title */}
-      <View style={styles.topSection}>
-        <Image
-          source={logo}
-          style={{
-            width: logoSize,
-            height: logoSize,
-            tintColor: theme.colors.primary,
-            marginBottom: 2,
-            alignSelf: 'center',
-          }}
-          resizeMode="contain"
-        />
-        <Text style={styles.title} includeFontPadding={false}>
-          Context is Everything
-        </Text>
-      </View>
-
-      {/* Form */}
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor={theme.colors.muted}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        {/* Password field with inline icon inside input */}
-        <View style={styles.passwordWrapper}>
-          <TextInput
-            style={[styles.input, { paddingRight: 42, marginBottom: 0 }]}
-            placeholder="Password"
-            placeholderTextColor={theme.colors.muted}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
+      <KeyboardAwareScrollView
+        enableOnAndroid
+        keyboardShouldPersistTaps="handled"
+        extraScrollHeight={20}
+        contentContainerStyle={{ flexGrow: 1 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top block: logo above title */}
+        <View style={styles.topSection}>
+          <Image
+            source={logo}
+            style={{
+              width: logoSize,
+              height: logoSize,
+              tintColor: theme.colors.primary,
+              marginBottom: 2,
+              alignSelf: 'center',
+            }}
+            resizeMode="contain"
           />
-          <TouchableOpacity
-            onPress={() => setShowPassword((v) => !v)}
-            style={styles.eyeContainer}
-            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-          >
-            <Feather
-              name={showPassword ? 'eye' : 'eye-off'}
-              size={20}
-              color={theme.colors.muted}
-            />
-          </TouchableOpacity>
+          <Text style={styles.title} includeFontPadding={false}>
+            Context is Everything
+          </Text>
         </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableOpacity>
+        {/* Form */}
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={theme.colors.muted}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-        <TouchableOpacity
-          style={styles.signupButton}
-          onPress={() => navigation.navigate('Signup')}
-        >
-          <Text style={styles.signupText}>Continue to Signup</Text>
-        </TouchableOpacity>
-      </View>
+          {/* Password field with inline icon inside input */}
+          <View style={styles.passwordWrapper}>
+            <TextInput
+              style={[styles.input, { paddingRight: 42, marginBottom: 0 }]}
+              placeholder="Password"
+              placeholderTextColor={theme.colors.muted}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity
+              onPress={() => setShowPassword((v) => !v)}
+              style={styles.eyeContainer}
+              accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <Feather
+                name={showPassword ? 'eye' : 'eye-off'}
+                size={20}
+                color={theme.colors.muted}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.signupButton}
+            onPress={() => navigation.navigate('Signup')}
+          >
+            <Text style={styles.signupText}>Continue to Signup</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
     </ScreenContainer>
   );
 }
