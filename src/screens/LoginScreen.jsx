@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import ScreenContainer from '../components/ScreenContainer';
 import { useTheme } from '../design/ThemeProvider';
 import { useAuth } from '../context/AuthContext';
+import { Feather } from '@expo/vector-icons';
 import logo from '../../assets/clarionlogo.png';
 
 export default function LoginScreen() {
@@ -24,6 +25,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // responsive logo size
   const logoSize = Math.min(320, windowWidth * 0.8);
@@ -36,23 +38,20 @@ export default function LoginScreen() {
     <ScreenContainer>
       {/* Top block: logo above title */}
       <View style={styles.topSection}>
-        {/* DEBUG: uncomment border to see container bounds */}
-        {/* <View style={{ borderWidth: 1, borderColor: 'red' }}> */}
-          <Image
-            source={logo}
-            style={{
-              width: logoSize,
-              height: logoSize,
-              tintColor: theme.colors.primary,
-              marginBottom: 2, // minimal explicit gap
-              alignSelf: 'center',
-            }}
-            resizeMode="contain"
-          />
-          <Text style={styles.title} includeFontPadding={false}>
-            Context is Everything
-          </Text>
-        {/* </View> */}
+        <Image
+          source={logo}
+          style={{
+            width: logoSize,
+            height: logoSize,
+            tintColor: theme.colors.primary,
+            marginBottom: 2,
+            alignSelf: 'center',
+          }}
+          resizeMode="contain"
+        />
+        <Text style={styles.title} includeFontPadding={false}>
+          Context is Everything
+        </Text>
       </View>
 
       {/* Form */}
@@ -66,14 +65,30 @@ export default function LoginScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor={theme.colors.muted}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+
+        {/* Password field with inline icon inside input */}
+        <View style={styles.passwordWrapper}>
+          <TextInput
+            style={[styles.input, { paddingRight: 42, marginBottom: 0 }]}
+            placeholder="Password"
+            placeholderTextColor={theme.colors.muted}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+          />
+          <TouchableOpacity
+            onPress={() => setShowPassword((v) => !v)}
+            style={styles.eyeContainer}
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+          >
+            <Feather
+              name={showPassword ? 'eye' : 'eye-off'}
+              size={20}
+              color={theme.colors.muted}
+            />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Login</Text>
@@ -97,13 +112,12 @@ const getStyles = (theme) =>
       marginTop: 32,
       marginBottom: 4,
       paddingHorizontal: 16,
-      // ensure nothing is stretching it
     },
     title: {
       fontSize: 20,
       fontWeight: '600',
       color: theme.colors.text,
-      lineHeight: 20, // tight to remove extra internal space
+      lineHeight: 20,
       marginTop: 0,
     },
     form: {
@@ -116,6 +130,19 @@ const getStyles = (theme) =>
       padding: 14,
       borderRadius: 10,
       marginBottom: theme.spacing.md,
+    },
+    passwordWrapper: {
+      position: 'relative',
+      marginBottom: theme.spacing.md,
+    },
+    eyeContainer: {
+      position: 'absolute',
+      right: 12,
+      top: '50%',
+      transform: [{ translateY: -10 }],
+      padding: 4,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     loginButton: {
       backgroundColor: theme.colors.primary,
