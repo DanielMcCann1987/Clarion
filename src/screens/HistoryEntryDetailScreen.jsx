@@ -110,14 +110,25 @@ export default function HistoryEntryDetailScreen() {
   const [editing, setEditing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // keep in sync if context updated externally (favorite toggle etc.)
   useEffect(() => {
     if (contextEntry) {
       setEntry(contextEntry);
     }
   }, [contextEntry]);
 
-  const hasStructuredAnalysis = !!entry.analysis;
-  const analysis = entry.analysis || null;
+  // Determine if entry has any analysis-ish data
+  const hasRawMarkdown = !!entry.analysis_markdown;
+  const hasStructured = !!entry.analysis;
+  // Choose displayAnalysis: prefer real structured, else if only markdown exists, mock it
+  const displayAnalysis = hasStructured
+    ? entry.analysis
+    : hasRawMarkdown
+    ? mockAnalyze(entry.entry_text || '')
+    : null;
+
+  // Identity sentence fallback: entry or mock
+  const identitySentence = entry.identity_sentence || (displayAnalysis ? displayAnalysis.identity_sentence : '');
 
   // icon color logic
   const bg = theme?.colors?.background || '#ffffff';
@@ -125,7 +136,7 @@ export default function HistoryEntryDetailScreen() {
   const iconColor = darkMode ? '#fff' : '#008080';
 
   const handleEditToggle = () => {
-    if (editing) {
+    if (editing && entry.id) {
       upsertEntry(entry);
     }
     setEditing((e) => !e);
@@ -134,7 +145,7 @@ export default function HistoryEntryDetailScreen() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `${entry.identity_sentence || ''}\n\n${entry.entry_text || ''}`,
+        message: `${identitySentence}\n\n${entry.entry_text || ''}`,
         title: 'Journal Entry',
       });
     } catch (e) {
@@ -170,6 +181,7 @@ export default function HistoryEntryDetailScreen() {
       analysis: mockResult,
       identity_sentence: mockResult.identity_sentence || entry.identity_sentence,
       analyzed: true,
+      analysis_markdown: `${mockResult.reframe}\n\nFinal thought: ${mockResult.final_thought}`,
     };
     upsertEntry(updated);
     setEntry(updated);
@@ -178,8 +190,8 @@ export default function HistoryEntryDetailScreen() {
   };
 
   const handleReanalyze = () => {
-    if (hasStructuredAnalysis) {
-      navigation.navigate('AnalysisDetail', { analysis });
+    if (displayAnalysis) {
+      navigation.navigate('AnalysisDetail', { analysis: displayAnalysis });
     } else {
       handleAnalyze();
     }
@@ -187,8 +199,8 @@ export default function HistoryEntryDetailScreen() {
   };
 
   const handleNewEntry = () => {
-    const prefill = (analysis && analysis.reframe) || entry.entry_text || '';
-    navigation.navigate('Entry', { prefill });
+    const prefill = (displayAnalysis && displayAnalysis.reframe) || entry.entry_text || '';
+    navigation.navigate('Journal', { screen: 'Entry', params: { prefill } });
     setMenuOpen(false);
   };
 
@@ -249,14 +261,14 @@ export default function HistoryEntryDetailScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Identity Sentence Banner */}
-          {entry.identity_sentence ? (
+          {identitySentence ? (
             <View style={[detailStyles.banner, { backgroundColor: theme.colors.primary }]}>
               <Text style={[detailStyles.bannerTitle, { color: theme.colors.surface }]}>
                 Identity Sentence
               </Text>
               {editing ? (
                 <TextInput
-                  value={entry.identity_sentence}
+                  value={identitySentence}
                   onChangeText={(v) => setEntry((e) => ({ ...e, identity_sentence: v }))}
                   style={[
                     detailStyles.editableBannerInput,
@@ -267,7 +279,7 @@ export default function HistoryEntryDetailScreen() {
                 />
               ) : (
                 <Text style={[detailStyles.bannerText, { color: theme.colors.surface }]}>
-                  {entry.identity_sentence}
+                  {identitySentence}
                 </Text>
               )}
             </View>
@@ -342,24 +354,26 @@ export default function HistoryEntryDetailScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Structured Analysis or fallback */}
-          {hasStructuredAnalysis ? (
+          {/* Structured Analysis or Analyze CTA */}
+          {displayAnalysis ? (
             <>
+              {/* Surface Structure */}
               <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
                 <Text style={[detailStyles.numberedTitle, { color: theme.colors.primary }]}>
                   1. Surface Structure
                 </Text>
                 <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-                  {analysis.surface_structure}
+                  {displayAnalysis.surface_structure}
                 </Text>
               </View>
 
+              {/* Milton Model Breakdown */}
               <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
                 <Text style={[detailStyles.numberedTitle, { color: theme.colors.primary }]}>
                   2. Milton Model Breakdown
                 </Text>
-                {analysis.patterns && analysis.patterns.length ? (
-                  analysis.patterns.map((p, i) => (
+                {displayAnalysis.patterns && displayAnalysis.patterns.length ? (
+                  displayAnalysis.patterns.map((p, i) => (
                     <View key={i} style={detailStyles.patternRow}>
                       <Text style={[detailStyles.patternLabel, { color: theme.colors.accent }]}>
                         {p.type}:
@@ -376,21 +390,23 @@ export default function HistoryEntryDetailScreen() {
                 )}
               </View>
 
+              {/* Deep Structure */}
               <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
                 <Text style={[detailStyles.numberedTitle, { color: theme.colors.primary }]}>
                   3. Deep Structure
                 </Text>
                 <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-                  {analysis.deep_structure}
+                  {displayAnalysis.deep_structure}
                 </Text>
               </View>
 
+              {/* Implied Beliefs & Inner Shifts */}
               <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
                 <Text style={[detailStyles.numberedTitle, { color: theme.colors.primary }]}>
                   4. Implied Beliefs & Inner Shifts
                 </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                  {(analysis.implied_beliefs || []).map((b, i) => {
+                  {(displayAnalysis.implied_beliefs || []).map((b, i) => {
                     const isShift = b.type?.toLowerCase() === 'shift';
                     return (
                       <View
@@ -417,6 +433,7 @@ export default function HistoryEntryDetailScreen() {
                 </View>
               </View>
 
+              {/* Reframe */}
               <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
                 <Text style={[detailStyles.numberedTitle, { color: theme.colors.primary }]}>
                   5. Reframe
@@ -431,38 +448,27 @@ export default function HistoryEntryDetailScreen() {
                   }}
                 >
                   <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-                    {analysis.reframe}
+                    {displayAnalysis.reframe}
                   </Text>
                 </View>
               </View>
 
-              {analysis.final_thought ? (
+              {/* Final Thought */}
+              {displayAnalysis.final_thought ? (
                 <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
                   <Text style={[detailStyles.numberedTitle, { color: theme.colors.primary }]}>
                     6. What They’re Really Saying
                   </Text>
                   <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-                    {analysis.final_thought}
+                    {displayAnalysis.final_thought}
                   </Text>
                 </View>
               ) : null}
             </>
-          ) : entry.analysis_markdown ? (
-            <View style={[detailStyles.section, { backgroundColor: theme.colors.card }]}>
-              <Text style={[detailStyles.sectionTitle, { color: theme.colors.text }]}>
-                Full Analysis
-              </Text>
-              <Text style={[detailStyles.content, { color: theme.colors.text }]}>
-                {entry.analysis_markdown}
-              </Text>
-            </View>
           ) : (
             <TouchableOpacity
               onPress={handleAnalyze}
-              style={[
-                detailStyles.ctaButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
+              style={[detailStyles.ctaButton, { backgroundColor: theme.colors.primary }]}
             >
               <Text style={{ color: '#fff', fontWeight: '600' }}>
                 Analyze with Milton Model
@@ -559,7 +565,7 @@ const detailStyles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
-    width: '100%',
+    alignSelf: 'stretch',
     marginBottom: 20,
   },
   editIcon: {
