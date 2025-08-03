@@ -1,5 +1,5 @@
 // src/design/ThemeProvider.jsx
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { light, dark } from './tokens';
 
 const ThemeContext = createContext();
@@ -12,10 +12,15 @@ export function ThemeProvider({ children, initial = 'dark' }) {
 
   const theme = useMemo(() => (mode === 'light' ? light : dark), [mode]);
 
-  const toggle = () => setMode((m) => (m === 'light' ? 'dark' : 'light'));
+  const toggleMode = useCallback(() => {
+    setMode((m) => (m === 'light' ? 'dark' : 'light'));
+  }, []);
+
+  // keep legacy name too
+  const toggle = toggleMode;
 
   return (
-    <ThemeContext.Provider value={{ theme, mode, toggle }}>
+    <ThemeContext.Provider value={{ theme, mode, setMode, toggleMode, toggle }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -23,7 +28,7 @@ export function ThemeProvider({ children, initial = 'dark' }) {
 
 /**
  * Hook to access the theme.
- * Returns { theme, mode, toggle }
+ * Returns { theme, mode, toggleMode, toggle, setMode }
  */
 export function useTheme() {
   const ctx = useContext(ThemeContext);
