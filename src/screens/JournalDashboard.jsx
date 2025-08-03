@@ -88,7 +88,6 @@ function MarqueeText({ text, speed = 50, textStyle, style }) {
 }
 
 const INITIAL_GOALS = {
-  // prepopulated sample goals
   [formatYMD(new Date())]: ['Write morning entry', 'Review last reframes', 'Go for a run'],
   [formatYMD(
     (() => {
@@ -98,6 +97,8 @@ const INITIAL_GOALS = {
     })()
   )]: ['Practice mindfulness', 'Read 10 pages'],
 };
+
+const DEFAULT_TAGS = ['anxiety', 'smoking', 'clarity', 'stress', 'gratitude'];
 
 export default function JournalDashboard() {
   const { theme, toggle, mode } = useTheme();
@@ -117,14 +118,19 @@ export default function JournalDashboard() {
 
   const [selectedDate, setSelectedDate] = useState(formatYMD(today));
   const [goalsByDate, setGoalsByDate] = useState(INITIAL_GOALS);
+  const [dashboardTags, setDashboardTags] = useState(DEFAULT_TAGS);
 
   const goals = goalsByDate[selectedDate] || ['No goals set for this day.'];
 
-  // modal state
+  // goal modal state
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [newGoalText, setNewGoalText] = useState('');
   const [newGoalDate, setNewGoalDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // tag modal state
+  const [showTagModal, setShowTagModal] = useState(false);
+  const [newTagText, setNewTagText] = useState('');
 
   const addGoal = () => {
     if (!newGoalText.trim()) return;
@@ -145,6 +151,20 @@ export default function JournalDashboard() {
     if (selected) {
       setNewGoalDate(selected);
     }
+  };
+
+  const toggleDashboardTag = (tag) => {
+    setDashboardTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const addTag = () => {
+    const t = newTagText.trim().toLowerCase();
+    if (!t) return;
+    setDashboardTags((prev) => (prev.includes(t) ? prev : [...prev, t]));
+    setNewTagText('');
+    setShowTagModal(false);
   };
 
   return (
@@ -281,7 +301,7 @@ export default function JournalDashboard() {
                 backgroundColor: theme.colors.card,
                 padding: theme.spacing.md,
                 borderRadius: 10,
-                marginBottom: theme.spacing.lg,
+                marginBottom: theme.spacing.md,
               }}
             >
               {goals.map((g, i) => (
@@ -307,6 +327,77 @@ export default function JournalDashboard() {
                 </View>
               ))}
             </View>
+
+            {/* Tags section placed directly under goals */}
+            <View
+              style={{
+                marginBottom: theme.spacing.lg,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  marginBottom: theme.spacing.sm,
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Text style={{ color: theme.colors.text, fontWeight: '600', fontSize: 16 }}>
+                  Tags
+                </Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setNewTagText('');
+                    setShowTagModal(true);
+                  }}
+                  style={{
+                    padding: 6,
+                    backgroundColor: theme.colors.accent,
+                    borderRadius: 6,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                  accessibilityLabel="Add tag"
+                >
+                  <Text style={{ color: '#000', fontSize: 18, fontWeight: '700' }}>＋</Text>
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ flexDirection: 'row', gap: theme.spacing.sm, paddingHorizontal: 4 }}
+                style={{ marginBottom: theme.spacing.sm }}
+              >
+                {dashboardTags.map((tag) => {
+                  const selected = dashboardTags.includes(tag);
+                  return (
+                    <TouchableOpacity
+                      key={tag}
+                      onPress={() => toggleDashboardTag(tag)}
+                      style={{
+                        backgroundColor: selected ? theme.colors.primary : theme.colors.card,
+                        borderRadius: 16,
+                        paddingVertical: 8,
+                        paddingHorizontal: 14,
+                        borderWidth: 1,
+                        borderColor: selected ? theme.colors.primary : theme.colors.muted,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: selected ? theme.colors.surface : theme.colors.text,
+                          fontSize: 12,
+                          fontWeight: '600',
+                        }}
+                      >
+                        {tag}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
           </View>
         </ScrollView>
 
@@ -314,14 +405,14 @@ export default function JournalDashboard() {
         <View
           style={{
             paddingTop: theme.spacing.sm,
-            paddingBottom: insets.bottom + theme.spacing.sm,
-            gap: theme.spacing.sm,
+            paddingBottom: theme.spacing.sm, // matched top
+            gap: theme.spacing.xs,
           }}
         >
           <ThemedButton
             title="Write & Analyze"
             onPress={() => navigation.navigate('Entry')}
-            style={{ marginBottom: theme.spacing.sm }}
+            style={{ marginBottom: theme.spacing.xs }}
           />
 
           <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
@@ -432,6 +523,70 @@ export default function JournalDashboard() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={addGoal}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  backgroundColor: theme.colors.accent,
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#000', fontWeight: '600' }}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add Tag Modal */}
+      <Modal visible={showTagModal} transparent animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#00000080',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: theme.colors.card,
+              borderRadius: 12,
+              padding: 16,
+            }}
+          >
+            <Text style={{ color: theme.colors.text, fontWeight: '600', marginBottom: 8, fontSize: 16 }}>
+              New Tag
+            </Text>
+
+            <Text style={{ color: theme.colors.muted, marginBottom: 4 }}>Tag</Text>
+            <TextInput
+              placeholder="e.g. resilience"
+              placeholderTextColor={theme.colors.muted}
+              value={newTagText}
+              onChangeText={setNewTagText}
+              style={{
+                backgroundColor: '#1f2233',
+                color: theme.colors.text,
+                padding: 12,
+                borderRadius: 8,
+                marginBottom: 12,
+              }}
+            />
+
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+              <TouchableOpacity
+                onPress={() => setShowTagModal(false)}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  backgroundColor: '#555',
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: '#fff' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={addTag}
                 style={{
                   paddingVertical: 10,
                   paddingHorizontal: 16,
