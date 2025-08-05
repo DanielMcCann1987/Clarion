@@ -74,8 +74,6 @@ export default function JournalEntryScreen({ navigation }) {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [favorited, setFavorited] = useState(false);
-  const [affirmationSaved, setAffirmationSaved] = useState(false);
 
   const toggleTag = (tag) =>
     setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
@@ -90,15 +88,7 @@ export default function JournalEntryScreen({ navigation }) {
     setTimeout(() => {
       const result = mockAnalyze(entry.trim());
       setAnalysisResult(result);
-      // Here we simulate saving the analyzed entry to history (could be Supabase or local storage)
-      const savedEntry = {
-        entry: entry.trim(),
-        date: new Date().toISOString(),
-        analyzed: true,
-        tags,
-        analysis: result,
-      };
-      console.log('Saved analyzed entry:', savedEntry); // Replace with actual save
+      // simulate save
       setLoading(false);
     }, 800);
   };
@@ -108,14 +98,6 @@ export default function JournalEntryScreen({ navigation }) {
       Alert.alert('Please write something to save.');
       return;
     }
-    // You can also save this to your backend or local storage with analyzed: false
-    const savedEntry = {
-      entry: entry.trim(),
-      date: new Date().toISOString(),
-      analyzed: false,
-      tags,
-    };
-    console.log('Saved without analysis:', savedEntry); // Replace with actual save
     Alert.alert('Saved', 'Your journal entry was saved without analysis.');
     navigation.navigate('History');
   };
@@ -202,7 +184,12 @@ export default function JournalEntryScreen({ navigation }) {
             ))}
           </ScrollView>
 
-          <ThemedButton title="Analyze with Milton Model" onPress={submit} disabled={!entry.trim() || loading} />
+          {/* Changed title below */}
+          <ThemedButton
+            title="Analyze This Entry"
+            onPress={submit}
+            disabled={!entry.trim() || loading}
+          />
 
           <TouchableOpacity
             onPress={saveWithoutAnalysis}
@@ -247,3 +234,4 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
 });
+

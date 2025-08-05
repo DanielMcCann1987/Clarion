@@ -471,7 +471,7 @@ export default function HistoryEntryDetailScreen() {
               style={[detailStyles.ctaButton, { backgroundColor: theme.colors.primary }]}
             >
               <Text style={{ color: '#fff', fontWeight: '600' }}>
-                Analyze with Milton Model
+                Analyze This Entry
               </Text>
             </TouchableOpacity>
           )}
